@@ -57,7 +57,7 @@ function getUrlFromSearchParam() {
   const currentURL = window.location.href;
   const searchWord = new URL(currentURL).searchParams.get('search');
   const page = new URL(currentURL).searchParams.get('page');
-
+  let query = '';
   if (searchWord) {
     query = page
       ? `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${searchWord}&page=${page}&language=${LANGUAGE}`
