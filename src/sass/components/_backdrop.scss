@@ -1,0 +1,88 @@
+.backdrop {
+  width: 100%;
+  min-height: 100%;
+  opacity: 1;
+  visibility: visible;
+  background-color: rgba(43, 43, 43, 0.8);
+  position: fixed;
+  top: 0;
+  left: 0;
+  //   overflow-y: scroll;
+}
+
+.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.movie-info {
+  background-color: #fff;
+  width: 100%;
+  padding: 48px 20px 40px;
+
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.33;
+}
+
+.movie-detail__image {
+  width: 240px;
+  border-radius: 5px;
+}
+
+.movie-detail__title {
+  margin-top: 20px;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.15;
+}
+
+.movie-detail__about {
+  margin-top: 20px;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.33;
+}
+
+.movie-detail__title-table-titles {
+  color: #8c8c8c;
+}
+
+.movie-detail__table {
+  margin-top: 20px;
+}
+
+.movie-detail__about-text {
+  margin-top: 10px;
+  line-height: 1.66;
+}
+
+.movie-detail__button {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  border: 1px solid #000;
+  text-transform: uppercase;
+  width: 100px;
+  height: 44px;
+  line-height: 1.33;
+  background-color: #fff;
+}
+
+.movie-detail__button:first-child {
+  background-color: #ff6b01;
+  color: #fff;
+}
+
+.movie-detail__buttons-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  flex-direction: row;
+  align-items: center;
+}

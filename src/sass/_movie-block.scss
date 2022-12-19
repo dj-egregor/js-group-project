@@ -1,0 +1,23 @@
+.movie {
+  font-size: 12px;
+  margin-top: 20px;
+}
+
+.movie__image {
+  display: block;
+  width: 280px;
+}
+
+.movie__title {
+  margin-top: 10px;
+  text-transform: uppercase;
+  font-weight: 500;
+  line-height: 1.16;
+  font-size: inherit;
+}
+
+.movie__description {
+  margin-top: 10px;
+  color: #ff6b08;
+  line-height: 1.33;
+}

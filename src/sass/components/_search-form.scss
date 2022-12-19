@@ -1,0 +1,36 @@
+.search-form__input {
+  width: 100%;
+  display: block;
+  font-size: 16px;
+  opacity: 1;
+  background-color: transparent;
+  color: #fff;
+  outline: none;
+  border: none;
+  border-bottom: 0.5px solid #fff;
+  padding: 4px;
+}
+
+.search-form {
+  margin-top: 57px;
+  position: relative;
+}
+
+.search-form__input::-webkit-input-placeholder {
+  color: #ccc;
+}
+.search-form__input::-moz-placeholder {
+  color: #ccc;
+}
+
+.search-form__button {
+  background-image: url('../images/search.svg');
+  width: 12px;
+  height: 12px;
+  border: none;
+  top: 8;
+  right: 0;
+  position: absolute;
+  background-color: transparent;
+  //   background-color: #fff;
+}
