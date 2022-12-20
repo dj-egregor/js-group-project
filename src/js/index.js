@@ -190,7 +190,7 @@ backdrop.addEventListener('click', ({ target }) => {
   if (target.tagName === 'BUTTON' && target.classList.contains('js-watched')) {
     console.log('PRESSED js-watched');
     addMovieToWatchedList(target.dataset.id);
-    renderBackdropButtonsState(target, 'watched');
+    renderBackdropButtonsState(target);
   }
 
   // ловим нажатие на кнопку js-queue
@@ -203,14 +203,8 @@ backdrop.addEventListener('click', ({ target }) => {
   console.dir(target);
 });
 
-// function renderBackdropButtonsState(button, key) {
-//   if (loadArayFromLocalStorage(key).includes(String(button.dataset.id))) {
-//     button.classList.add('highlighted');
-//   } else {
-//     button.classList.remove('highlighted');
-//   }
-// }
-function renderBackdropButtonsState(parentOfButtons) {
+// TODO переписать на render и брать статус кнопок в свойствах объекта
+function renderBackdropButtonsState() {
   const buttonJsWatched = backdrop.querySelector('button.js-watched');
 
   const buttonJsQueue = backdrop.querySelector('button.js-queue');
@@ -396,27 +390,17 @@ function renderMovieDetails(data) {
   </p>
   <div class="movie-detail__buttons-wrapper">
   <button
-  class="movie-detail__button js-watched ${highlightedButton(
-    data.id,
-    'watched'
-  )}" data-id="${data.id}" type="button">add to Watched</button>
+  class="movie-detail__button js-watched" data-id="${
+    data.id
+  }" type="button">add to Watched</button>
   <button
-  class="movie-detail__button js-queue ${highlightedButton(
-    data.id,
-    'queue'
-  )}" data-id="${data.id}" type="button">add to queue</button>
+  class="movie-detail__button js-queue" data-id="${
+    data.id
+  }" type="button">add to queue</button>
   </div>
   `;
   backdrop.querySelector('.movie-info').innerHTML = content;
-}
-
-// TODO заменить это на рендер кнопок, которые опрашивают локалсторедж и ставят highlighted
-function highlightedButton(idMovie, key) {
-  // можно заменить
-  if (loadArayFromLocalStorage(key).includes(String(idMovie))) {
-    return 'highlighted';
-  }
-  return '';
+  renderBackdropButtonsState();
 }
 
 // функция генерирует жанры TODO пересмотреть устройство, возможно заменить просто join
