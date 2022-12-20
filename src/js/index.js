@@ -67,6 +67,7 @@ async function showMoviesFromLocalstorage(keyOfStorage) {
   }
 }
 
+// TODO Неплохо бы заменить эту функцию renderMovies предварительно приготовив нормально данные с локалстореджа, которые она сможет съесть
 function renderMoviesFromLocalstorageArray(data) {
   const movies = data
     .map(movie => {
@@ -170,16 +171,34 @@ backdrop.addEventListener('click', ({ target }) => {
 
   if (target.tagName === 'BUTTON' && target.classList.contains('js-watched')) {
     console.log('YES js-watched');
+
     addMovieToWatchedList(target.dataset.id);
+    renderBackdropButtonsState(target, 'watched');
   }
 
   if (target.tagName === 'BUTTON' && target.classList.contains('js-queue')) {
     console.log('YES js-queue');
+
     addMovieToQueueList(target.dataset.id);
+    renderBackdropButtonsState(target, 'queue');
   }
 
   console.dir(target);
 });
+
+function renderBackdropButtonsState(button, key) {
+  console.log(
+    '🚀 ~ file: index.js:188 ~ renderBackdropButtonsState ~ button, key',
+
+    key
+  );
+
+  if (loadArayFromLocalStorage(key).includes(String(button.dataset.id))) {
+    button.classList.add('highlighted');
+  } else {
+    button.classList.remove('highlighted');
+  }
+}
 
 window.addEventListener('load', highlightActiveLink);
 
@@ -355,10 +374,11 @@ function renderMovieDetails(data) {
 
 // TODO заменить это на рендер кнопок, которые опрашивают локалсторедж и ставят highlighted
 function highlightedButton(idMovie, key) {
-  // модно заменить
+  // можно заменить
   if (loadArayFromLocalStorage(key).includes(String(idMovie))) {
     return 'highlighted';
   }
+  return '';
 }
 
 function getGenre(arr) {
