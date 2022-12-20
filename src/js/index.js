@@ -37,7 +37,9 @@ buttonLibraryQueue.addEventListener('click', () => {
 // Объект с обработчиками роутов
 const routes = {
   '/': home,
+  '/js-group-project/': home,
   '/library': library,
+  '/js-group-project/library': library,
 };
 
 searchForm.addEventListener('submit', checkForm);
