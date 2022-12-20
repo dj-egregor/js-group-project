@@ -155,6 +155,7 @@ function setRoute(route, params) {
 
 // Получаем текущий роут из URL
 const route = window.location.pathname;
+console.log('ROUTE', route);
 
 // Проверяем, что у нас есть обработчик для этого роута
 if (routes[route]) {
