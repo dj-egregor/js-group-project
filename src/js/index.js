@@ -66,6 +66,8 @@ async function showMoviesFromLocalstorage(keyOfStorage) {
     const movies = await Promise.all(arrayOfPromises);
     console.log(movies);
     renderMoviesFromLocalstorageArray(movies);
+  } else {
+    movieContainer.innerHTML = '';
   }
 }
 
@@ -167,6 +169,7 @@ if (routes[route]) {
 } else {
   console.log('Route not found');
 }
+
 backdrop.addEventListener('click', ({ target }) => {
   if (target === backdrop) {
     // console.log('EEEESSS');
