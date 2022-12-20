@@ -6,12 +6,15 @@ const LANGUAGE = 'ru';
 import noImg from '../images/no-image.jpg';
 
 let genres = [];
+
+// НАСТРОЙКА ПАГИНАЦИИ
 let totalPages = 0;
 let currentPage = 1;
-let pageLinks = 5; // нечетные
+let pageLinks = 5; //   количество кнопок ((нечетные числа, пример - 1 2 [3] 4 5))
 const paginationRange = Math.floor(pageLinks / 2);
 let startPaginationPage = 1;
 let stopPaginationPage = pageLinks;
+//------------------------------------------------
 
 const movieContainer = document.querySelector('.js-movies-container');
 const pagination = document.querySelector('.js-paginator');
@@ -22,12 +25,16 @@ const libraryButtonsBlock = document.querySelector('.js-library-buttons-block');
 const buttonLibraryWatched = document.querySelector('.js-watched');
 const buttonLibraryQueue = document.querySelector('.js-queue');
 
+window.addEventListener('load', highlightActiveLink);
+
+// Клик на кнопку  WATCHED
 buttonLibraryWatched.addEventListener('click', () => {
   showMoviesFromLocalstorage('watched');
   buttonLibraryWatched.classList.add('highlighted');
   buttonLibraryQueue.classList.remove('highlighted');
 });
 
+// Клик на кнопку  QUEUE
 buttonLibraryQueue.addEventListener('click', () => {
   showMoviesFromLocalstorage('queue');
   buttonLibraryQueue.classList.add('highlighted');
@@ -37,13 +44,13 @@ buttonLibraryQueue.addEventListener('click', () => {
 // Объект с обработчиками роутов
 const routes = {
   '/': home,
-  '/js-group-project/': home,
+  '/js-group-project/': home, // ИСПРАВИТЬ НА ПУТЬ ПРОЕКТА НА GITHUB
   '/library': library,
-  '/js-group-project/library': library,
+  '/js-group-project/library': library, // ИСПРАВИТЬ НА ПУТЬ ПРОЕКТА НА GITHUB
 };
 
 searchForm.addEventListener('submit', checkForm);
-pagination.addEventListener('click', gotoPage);
+pagination.addEventListener('click', gotoPage); // переход на страницу в пагинаторе
 
 function displayElement(element, isHide) {
   if (element) {
@@ -67,7 +74,7 @@ async function showMoviesFromLocalstorage(keyOfStorage) {
     console.log(movies);
     renderMoviesFromLocalstorageArray(movies);
   } else {
-    movieContainer.innerHTML = '';
+    movieContainer.innerHTML = ''; // Если фильмов нет, то очищаем
   }
 }
 
@@ -141,13 +148,12 @@ function highlighteHeaderButtons() {
   }
 }
 
-//setRoute('/', { search: 'avatar' }).
-
 function getRoute(key) {
   const params = new URLSearchParams(window.location.search);
   return params.get(key);
 }
 
+//setRoute('/', { search: 'avatar' }).
 function setRoute(route, params) {
   // Генерируем URL с параметрами
   const searchParams = new URLSearchParams(params);
@@ -206,8 +212,6 @@ function renderBackdropButtonsState(button, key) {
     button.classList.remove('highlighted');
   }
 }
-
-window.addEventListener('load', highlightActiveLink);
 
 function checkForm(event) {
   event.preventDefault();
@@ -503,8 +507,9 @@ function renderMovies({ data }) {
 
 function addClickListenerToMovie() {
   document.querySelectorAll('.movie__link').forEach(element => {
-    element.addEventListener('click', () => {
+    element.addEventListener('click', event => {
       showMovieDetails(element.dataset.movie);
+      event.preventDefault(); // предотвращаем открытие ссылки на карточке фильма
     });
   });
 }
