@@ -215,11 +215,23 @@ function renderBackdropButtonsState(parentOfButtons) {
 
   const buttonJsQueue = backdrop.querySelector('button.js-queue');
 
-  // if (loadArayFromLocalStorage(key).includes(String(button.dataset.id))) {
-  //   button.classList.add('highlighted');
-  // } else {
-  //   button.classList.remove('highlighted');
-  // }
+  if (
+    loadArayFromLocalStorage('watched').includes(
+      String(buttonJsWatched.dataset.id)
+    )
+  ) {
+    buttonJsWatched.classList.add('highlighted');
+  } else {
+    buttonJsWatched.classList.remove('highlighted');
+  }
+
+  if (
+    loadArayFromLocalStorage('queue').includes(String(buttonJsQueue.dataset.id))
+  ) {
+    buttonJsQueue.classList.add('highlighted');
+  } else {
+    buttonJsQueue.classList.remove('highlighted');
+  }
 }
 
 function checkForm(event) {
@@ -244,6 +256,7 @@ function searchWordToInput() {
   }
 }
 
+// генерит URL запроса к API в зависимости от параметров в адресной строке браузера
 function getUrlFromSearchParam() {
   const currentURL = window.location.href;
   const searchWord = new URL(currentURL).searchParams.get('search');
