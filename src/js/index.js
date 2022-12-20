@@ -25,23 +25,23 @@ const libraryButtonsBlock = document.querySelector('.js-library-buttons-block');
 const buttonLibraryWatched = document.querySelector('.js-watched');
 const buttonLibraryQueue = document.querySelector('.js-queue');
 
-window.addEventListener('load', highlightActiveLink);
+window.addEventListener('load', highlightActiveLink); // подсветка кнопок текущей страницы в хедере
 
-// Клик на кнопку  WATCHED
+// Клик на кнопку  WATCHED в хедере
 buttonLibraryWatched.addEventListener('click', () => {
   showMoviesFromLocalstorage('watched');
   buttonLibraryWatched.classList.add('highlighted');
   buttonLibraryQueue.classList.remove('highlighted');
 });
 
-// Клик на кнопку  QUEUE
+// Клик на кнопку  QUEUE в хедере
 buttonLibraryQueue.addEventListener('click', () => {
   showMoviesFromLocalstorage('queue');
   buttonLibraryQueue.classList.add('highlighted');
   buttonLibraryWatched.classList.remove('highlighted');
 });
 
-// Объект с обработчиками роутов
+// Объект с обработчиками роутов (навигация)
 const routes = {
   '/': home,
   '/js-group-project/': home, // ИСПРАВИТЬ НА ПУТЬ ПРОЕКТА НА GITHUB
@@ -49,7 +49,7 @@ const routes = {
   '/js-group-project/library': library, // ИСПРАВИТЬ НА ПУТЬ ПРОЕКТА НА GITHUB
 };
 
-searchForm.addEventListener('submit', checkForm);
+searchForm.addEventListener('submit', checkForm); // проверка формы при поиске фильма
 pagination.addEventListener('click', gotoPage); // переход на страницу в пагинаторе
 
 function displayElement(element, isHide) {
@@ -60,6 +60,7 @@ function displayElement(element, isHide) {
 }
 
 async function showMoviesFromLocalstorage(keyOfStorage) {
+  //  показывает фильмы по ключу переменной в Localstorage
   const queueArray = loadArayFromLocalStorage(keyOfStorage);
   if (queueArray.length > 0) {
     // проверка на пустой массив
@@ -139,7 +140,9 @@ function library() {
   highlighteHeaderButtons();
 }
 
+// подсветка кнопок (Watched queue) на странице my -library
 function highlighteHeaderButtons() {
+  // подсветка кнопок ЦФ
   if (getRoute('mode') === 'queue') {
     buttonLibraryQueue.classList.add('highlighted');
   }
@@ -176,41 +179,47 @@ if (routes[route]) {
   console.log('Route not found');
 }
 
+// обработчик кликов на бэкдропе, закрытие его, реакция на кнопки ...
 backdrop.addEventListener('click', ({ target }) => {
+  // закрытие бэкдропа
   if (target === backdrop) {
-    // console.log('EEEESSS');
     backdrop.classList.add('is-hidden');
   }
 
+  // ловим нажатие на кнопку js-watched
   if (target.tagName === 'BUTTON' && target.classList.contains('js-watched')) {
-    console.log('YES js-watched');
-
+    console.log('PRESSED js-watched');
     addMovieToWatchedList(target.dataset.id);
     renderBackdropButtonsState(target, 'watched');
   }
 
+  // ловим нажатие на кнопку js-queue
   if (target.tagName === 'BUTTON' && target.classList.contains('js-queue')) {
-    console.log('YES js-queue');
-
+    console.log('PRESSED js-queue');
     addMovieToQueueList(target.dataset.id);
-    renderBackdropButtonsState(target, 'queue');
+    renderBackdropButtonsState(target);
   }
-
+  // в консоль выводим место куда нажали
   console.dir(target);
 });
 
-function renderBackdropButtonsState(button, key) {
-  console.log(
-    '🚀 ~ file: index.js:188 ~ renderBackdropButtonsState ~ button, key',
+// function renderBackdropButtonsState(button, key) {
+//   if (loadArayFromLocalStorage(key).includes(String(button.dataset.id))) {
+//     button.classList.add('highlighted');
+//   } else {
+//     button.classList.remove('highlighted');
+//   }
+// }
+function renderBackdropButtonsState(parentOfButtons) {
+  const buttonJsWatched = backdrop.querySelector('button.js-watched');
 
-    key
-  );
+  const buttonJsQueue = backdrop.querySelector('button.js-queue');
 
-  if (loadArayFromLocalStorage(key).includes(String(button.dataset.id))) {
-    button.classList.add('highlighted');
-  } else {
-    button.classList.remove('highlighted');
-  }
+  // if (loadArayFromLocalStorage(key).includes(String(button.dataset.id))) {
+  //   button.classList.add('highlighted');
+  // } else {
+  //   button.classList.remove('highlighted');
+  // }
 }
 
 function checkForm(event) {
@@ -258,6 +267,7 @@ function setPageToUrl(page) {
   history.pushState({}, '', currentUrl.toString());
 }
 
+// подсветка активной ссылки my-library и Home
 function highlightActiveLink() {
   const currentURL = window.location.href;
   const currentPage = new URL(currentURL).pathname;
@@ -273,6 +283,7 @@ function highlightActiveLink() {
   }
 }
 
+// пагинация перейти на указанную  страницу
 function gotoPage({ target }) {
   if (target.tagName === 'BUTTON') {
     currentPage = Number(target.dataset.gotopage);
@@ -281,6 +292,7 @@ function gotoPage({ target }) {
   }
 }
 
+//  функция отображения пагинации
 function displayPagination(response) {
   let pages = [];
 
@@ -325,11 +337,13 @@ function displayPagination(response) {
   }
 }
 
+// функция формирует год из полной даты с API
 function getYearFromDate(date) {
   const dateRelease = new Date(date);
   return dateRelease.getFullYear();
 }
 
+// рендерит фильм на бэкдроп
 function renderMovieDetails(data) {
   console.log(data);
   backdrop.classList.remove('is-hidden');
@@ -392,6 +406,7 @@ function highlightedButton(idMovie, key) {
   return '';
 }
 
+// функция генерирует жанры TODO пересмотреть устройство, возможно заменить просто join
 function getGenre(arr) {
   let genresOutput = [];
   for (const genre of arr) {
@@ -401,14 +416,17 @@ function getGenre(arr) {
   return genresOutput.join(', ');
 }
 
+// сохраняет айди фильма в локалсторедж под ключем watched
 function addMovieToWatchedList(id) {
   saveIdMovieToLocalStorage(id, 'watched', 'queue');
 }
 
+// сохраняет айди фильма в локалсторедж под ключем queue
 function addMovieToQueueList(id) {
   saveIdMovieToLocalStorage(id, 'queue', 'watched');
 }
 
+// начинка функции addMovieToWatchedList
 function saveIdMovieToLocalStorage(idMovie, key, keyToFindDuplicate) {
   let args = loadFromLocalStorage(key); // переписать на loadArayFromLocalStorage
   let duplicateKey = loadFromLocalStorage(keyToFindDuplicate); //  переписать на loadArayFromLocalStorage
@@ -431,6 +449,7 @@ function saveIdMovieToLocalStorage(idMovie, key, keyToFindDuplicate) {
   }
 }
 
+// сохраняет в локалсторедж переменную value по ключу key
 function saveToLocalStorage(key, value) {
   try {
     const serializedState = JSON.stringify(value);
@@ -439,7 +458,7 @@ function saveToLocalStorage(key, value) {
     console.error('Set state error: ', error.message);
   }
 }
-
+// достает переменную из локалсторедж по ключу
 function loadFromLocalStorage(key) {
   try {
     const serializedState = localStorage.getItem(key);
@@ -449,6 +468,7 @@ function loadFromLocalStorage(key) {
   }
 }
 
+// достает массив из локалсторедж по ключу, если нет массива или переменнос этим ключем то выводит []
 function loadArayFromLocalStorage(key) {
   try {
     const serializedState = localStorage.getItem(key);
@@ -458,6 +478,7 @@ function loadArayFromLocalStorage(key) {
   }
 }
 
+// API запрос, получаем инфу о фильме по его ID
 function showMovieDetails(id) {
   console.log(id);
   const url = `https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}&language=${LANGUAGE}`;
@@ -478,6 +499,7 @@ function showMovieDetails(id) {
     });
 }
 
+// создает разметку списка фильмов и добавляет его в movieContainer
 function renderMovies({ data }) {
   const movie = data.results
     .map(movie => {
@@ -505,6 +527,7 @@ function renderMovies({ data }) {
   addClickListenerToMovie();
 }
 
+// TODO переписать на клин по родителю, а не вешать обработчики на каждую ссылку....
 function addClickListenerToMovie() {
   document.querySelectorAll('.movie__link').forEach(element => {
     element.addEventListener('click', event => {
@@ -514,6 +537,7 @@ function addClickListenerToMovie() {
   });
 }
 
+// API запрос возвращает список фильмов по URL запроса
 function getFilmsByUrl(url) {
   axios
     .get(url)
@@ -535,6 +559,7 @@ function getFilmsByUrl(url) {
     });
 }
 
+// API запрос на сервер получает список жанров
 async function getGenres() {
   return axios
     .get(
