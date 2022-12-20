@@ -299,7 +299,8 @@ function gotoPage({ target }) {
   }
 }
 
-//  функция отображения пагинации
+//  функция отображения пагинации TODO устранить глюк при приближении к концу страниц, отображается меньше кнопок,
+// Добавить последнюю страницу и три точки ... на версии больше мобилки
 function displayPagination(response) {
   let pages = [];
 
@@ -321,10 +322,17 @@ function displayPagination(response) {
       }
     }
 
-    pages.push(
-      `<button data-gotopage="${startPaginationPage}" class="pagination__button back" type="button"></button>`
-    );
+    if (currentPage > 1) {
+      pages.push(
+        `<button data-gotopage="${
+          currentPage - 1
+        }" class="pagination__button back" type="button"></button>`
+      );
+    }
+
     for (let i = startPaginationPage; i <= stopPaginationPage; i += 1) {
+      console.log('🚀 ~ file: index.js:333 ~ i', i);
+
       if (currentPage === i) {
         pages.push(
           `<button data-gotopage="${i}" class="pagination__button current" type="button">${i}</button>`
@@ -336,9 +344,13 @@ function displayPagination(response) {
       }
     }
 
-    pages.push(
-      `<button data-gotopage="${stopPaginationPage}" class="pagination__button forward" type="button"></button>`
-    );
+    if (currentPage < response.total_pages) {
+      pages.push(
+        `<button data-gotopage="${
+          currentPage + 1
+        }" class="pagination__button forward" type="button"></button>`
+      );
+    }
 
     pagination.innerHTML = pages.join('');
   }
