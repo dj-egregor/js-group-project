@@ -13,23 +13,175 @@ const paginationRange = Math.floor(pageLinks / 2);
 let startPaginationPage = 1;
 let stopPaginationPage = pageLinks;
 
-const movieContainer = document.querySelector('.movies-container');
-const pagination = document.querySelector('.pagination');
-const searchMovieInput = document.querySelector('.search-form__input');
-const searchForm = document.querySelector('.search-form');
+const movieContainer = document.querySelector('.js-movies-container');
+const pagination = document.querySelector('.js-paginator');
+const searchMovieInput = document.querySelector('.js-search-form__input');
+const searchForm = document.querySelector('.js-search-form');
 const backdrop = document.querySelector('.backdrop');
-// const linkToMovies = document.querySelectorAll('.movie__link');
+const libraryButtonsBlock = document.querySelector('.js-library-buttons-block');
+const buttonLibraryWatched = document.querySelector('.js-watched');
+const buttonLibraryQueue = document.querySelector('.js-queue');
+
+buttonLibraryWatched.addEventListener('click', () => {
+  showMoviesFromLocalstorage('watched');
+  buttonLibraryWatched.classList.add('highlighted');
+  buttonLibraryQueue.classList.remove('highlighted');
+});
+
+buttonLibraryQueue.addEventListener('click', () => {
+  showMoviesFromLocalstorage('queue');
+  buttonLibraryQueue.classList.add('highlighted');
+  buttonLibraryWatched.classList.remove('highlighted');
+});
+
+// Объект с обработчиками роутов
+const routes = {
+  '/': home,
+  '/library': library,
+};
 
 searchForm.addEventListener('submit', checkForm);
 pagination.addEventListener('click', gotoPage);
-backdrop.addEventListener('click', () => {
-  backdrop.classList.add('is-hidden');
+
+function displayElement(element, isHide) {
+  if (element) {
+    // Скрываем элемент
+    element.style.display = isHide ? 'block' : 'none';
+  }
+}
+
+async function showMoviesFromLocalstorage(keyOfStorage) {
+  const queueArray = loadArayFromLocalStorage(keyOfStorage);
+  if (queueArray.length > 0) {
+    // проверка на пустой массив
+    const arrayOfPromises = queueArray.map(async movieId => {
+      const { data } = await axios.get(
+        `https://api.themoviedb.org/3/movie/${movieId}?api_key=${API_KEY}&language=${LANGUAGE}`
+      );
+      return data;
+    });
+    // 2. Запускаем все промисы параллельно и ждем их завершения
+    const movies = await Promise.all(arrayOfPromises);
+    console.log(movies);
+    renderMoviesFromLocalstorageArray(movies);
+  }
+}
+
+function renderMoviesFromLocalstorageArray(data) {
+  const movies = data
+    .map(movie => {
+      return `
+      <li class="movie">
+        <a href="#show-moovie=${movie.id}"
+         class="movie__link" data-movie="${movie.id}">
+        <img class="movie__image" ${
+          movie.poster_path
+            ? 'src="https://image.tmdb.org/t/p/w300' + movie.poster_path + '">'
+            : 'src="' + noImg + '">'
+        }
+        </a>
+        <h2 class="movie__title">${movie.title}</h2>
+        <p class="movie__description">
+          ${movie.genres.map(({ name }) => name).join(', ')}
+         | <span>
+        ${getYearFromDate(movie.release_date)}
+        </span>
+        <span class="movie__rating">${movie.vote_average}</span>
+        </p>
+        </li>`;
+    })
+    .join(''); //${getYearFromDate(movie.release_date)}    ${getGenreById(
+  console.log(data);
+
+  movieContainer.innerHTML = movies;
+
+  addClickListenerToMovie();
+}
+
+// Функция, которая будет вызываться для обработки роута '/'
+function home() {
+  console.log('Home page');
+
+  // Парсим параметры запроса
+  const params = new URLSearchParams(window.location.search);
+
+  // Проверяем, что есть параметр search
+  if (params.has('search')) {
+    console.log(`Search: ${params.get('search')}`);
+  }
+
+  searchWordToInput();
+
+  getGenres().then(genresArray => {
+    genres = genresArray;
+    getFilmsByUrl(getUrlFromSearchParam());
+  });
+}
+
+// Функция, которая будет вызываться для обработки роута '/library'
+function library() {
+  displayElement(searchForm, false);
+  displayElement(libraryButtonsBlock, true);
+  showMoviesFromLocalstorage('queue');
+  setRoute('library', { mode: 'queue' });
+  highlighteHeaderButtons();
+}
+
+function highlighteHeaderButtons() {
+  if (getRoute('mode') === 'queue') {
+    buttonLibraryQueue.classList.add('highlighted');
+  }
+  if (getRoute('mode') === 'watched') {
+    buttonLibraryWatched.classList.add('highlighted');
+  }
+}
+
+//setRoute('/', { search: 'avatar' }).
+
+function getRoute(key) {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(key);
+}
+
+function setRoute(route, params) {
+  // Генерируем URL с параметрами
+  const searchParams = new URLSearchParams(params);
+  const url = `${route}?${searchParams.toString()}`;
+
+  // Задаем URL в строке браузера
+  window.history.pushState({}, '', url);
+}
+
+// Получаем текущий роут из URL
+const route = window.location.pathname;
+
+// Проверяем, что у нас есть обработчик для этого роута
+if (routes[route]) {
+  // Вызываем обработчик роута
+  routes[route]();
+} else {
+  console.log('Route not found');
+}
+backdrop.addEventListener('click', ({ target }) => {
+  if (target === backdrop) {
+    // console.log('EEEESSS');
+    backdrop.classList.add('is-hidden');
+  }
+
+  if (target.tagName === 'BUTTON' && target.classList.contains('js-watched')) {
+    console.log('YES js-watched');
+    addMovieToWatchedList(target.dataset.id);
+  }
+
+  if (target.tagName === 'BUTTON' && target.classList.contains('js-queue')) {
+    console.log('YES js-queue');
+    addMovieToQueueList(target.dataset.id);
+  }
+
+  console.dir(target);
 });
-// linkToMovie.addEventListener('click', showMovieDetails);
 
 window.addEventListener('load', highlightActiveLink);
-
-// function update
 
 function checkForm(event) {
   event.preventDefault();
@@ -186,12 +338,27 @@ function renderMovieDetails(data) {
   ${data.overview}
   </p>
   <div class="movie-detail__buttons-wrapper">
-  <button class="movie-detail__button" type="button">add to Watched</button>
-  <button class="movie-detail__button" type="button">add to queue</button>
+  <button
+  class="movie-detail__button js-watched ${highlightedButton(
+    data.id,
+    'watched'
+  )}" data-id="${data.id}" type="button">add to Watched</button>
+  <button
+  class="movie-detail__button js-queue ${highlightedButton(
+    data.id,
+    'queue'
+  )}" data-id="${data.id}" type="button">add to queue</button>
   </div>
-  
   `;
   backdrop.querySelector('.movie-info').innerHTML = content;
+}
+
+// TODO заменить это на рендер кнопок, которые опрашивают локалсторедж и ставят highlighted
+function highlightedButton(idMovie, key) {
+  // модно заменить
+  if (loadArayFromLocalStorage(key).includes(String(idMovie))) {
+    return 'highlighted';
+  }
 }
 
 function getGenre(arr) {
@@ -201,6 +368,63 @@ function getGenre(arr) {
   }
 
   return genresOutput.join(', ');
+}
+
+function addMovieToWatchedList(id) {
+  saveIdMovieToLocalStorage(id, 'watched', 'queue');
+}
+
+function addMovieToQueueList(id) {
+  saveIdMovieToLocalStorage(id, 'queue', 'watched');
+}
+
+function saveIdMovieToLocalStorage(idMovie, key, keyToFindDuplicate) {
+  let args = loadFromLocalStorage(key); // переписать на loadArayFromLocalStorage
+  let duplicateKey = loadFromLocalStorage(keyToFindDuplicate); //  переписать на loadArayFromLocalStorage
+  let arr = [];
+  if (!args) {
+    arr.push(idMovie);
+  } else {
+    arr.push(...args);
+    if (!arr.includes(idMovie)) {
+      arr.push(idMovie);
+    }
+  }
+  saveToLocalStorage(key, arr);
+  // удаление дубликата в массиве keyToFindDuplicate
+  if (duplicateKey) {
+    if (duplicateKey.indexOf(idMovie) !== -1) {
+      duplicateKey.splice(duplicateKey.indexOf(idMovie), 1);
+      saveToLocalStorage(keyToFindDuplicate, duplicateKey);
+    }
+  }
+}
+
+function saveToLocalStorage(key, value) {
+  try {
+    const serializedState = JSON.stringify(value);
+    localStorage.setItem(key, serializedState);
+  } catch (error) {
+    console.error('Set state error: ', error.message);
+  }
+}
+
+function loadFromLocalStorage(key) {
+  try {
+    const serializedState = localStorage.getItem(key);
+    return serializedState === null ? undefined : JSON.parse(serializedState);
+  } catch (error) {
+    console.error('Get state error: ', error.message);
+  }
+}
+
+function loadArayFromLocalStorage(key) {
+  try {
+    const serializedState = localStorage.getItem(key);
+    return serializedState === null ? [] : JSON.parse(serializedState);
+  } catch (error) {
+    console.error('Get state error: ', error.message);
+  }
 }
 
 function showMovieDetails(id) {
@@ -306,10 +530,3 @@ function getGenreById(ids, arrGanres) {
     ? arrNamesGenres.join(', ')
     : 'Genre not set';
 }
-
-searchWordToInput();
-
-getGenres().then(genresArray => {
-  genres = genresArray;
-  getFilmsByUrl(getUrlFromSearchParam());
-});

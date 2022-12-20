@@ -1,0 +1,31 @@
+.library-buttons-block {
+  display: none;
+  margin-top: 60px;
+}
+
+.library-buttons-list {
+  display: flex;
+  justify-content: space-between;
+}
+
+.library-button {
+  width: 130px;
+  background-color: transparent;
+  border: 1px #fff solid;
+  color: #fff;
+  border-radius: 5px;
+  padding-top: 14px;
+  padding-bottom: 12px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.library-button:hover,
+.library-button:focus {
+  filter: drop-shadow(0px 8px 43px rgba(255, 107, 1, 0.6));
+}
+
+.library-button.highlighted {
+  background-color: #ff6b01;
+  border-color: #ff6b01;
+}
