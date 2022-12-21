@@ -31,7 +31,6 @@ window.addEventListener('load', highlightActiveLink); // подсветка кн
 buttonLibraryWatched.addEventListener('click', () => {
   showMoviesFromLocalstorage('watched');
   buttonLibraryWatched.classList.add('highlighted');
-
   buttonLibraryQueue.classList.remove('highlighted');
   setRoute('library', { mode: 'watched' }); // переходим на  список watched
 });
@@ -65,6 +64,8 @@ if (routes[route]) {
   console.log('Route not found');
 }
 
+//-------------------------------------- BACKDROP
+//
 // обработчик кликов на бэкдропе, закрытие его, реакция на кнопки ...
 backdrop.addEventListener('click', ({ target }) => {
   // закрытие бэкдропа
@@ -86,7 +87,12 @@ backdrop.addEventListener('click', ({ target }) => {
       addMovieToWatchedList(target.dataset.id);
     }
     renderBackdropButtonsState(target);
-    showMoviesFromLocalstorage('watched'); // обновляем содержимое списка на странице
+
+    // showMoviesFromLocalstorage('watched'); // обновляем содержимое списка на странице
+    if (getRoute('mode')) {
+      //проверяем, есть ли запрос mode
+      showMoviesFromLocalstorage(getRoute('mode')); // обновляем содержимое списка на странице
+    }
   }
 
   // ловим нажатие на кнопку js-queue
@@ -103,7 +109,10 @@ backdrop.addEventListener('click', ({ target }) => {
       addMovieToQueueList(target.dataset.id);
     }
     renderBackdropButtonsState(target);
-    showMoviesFromLocalstorage('queue'); // обновляем содержимое списка на странице
+    if (getRoute('mode')) {
+      //проверяем, есть ли запрос mode
+      showMoviesFromLocalstorage(getRoute('mode')); // обновляем содержимое списка на странице
+    }
   }
   // в консоль выводим место куда нажали
   console.dir(target);
@@ -112,6 +121,7 @@ backdrop.addEventListener('click', ({ target }) => {
 searchForm.addEventListener('submit', checkForm); // проверка формы при поиске фильма
 pagination.addEventListener('click', gotoPage); // переход на страницу в пагинаторе
 
+// показывает или склывает элемент true показать, false скрыть, также передаем элемент
 function displayElement(element, isHide) {
   if (element) {
     // Скрываем элемент
