@@ -31,7 +31,9 @@ window.addEventListener('load', highlightActiveLink); // подсветка кн
 buttonLibraryWatched.addEventListener('click', () => {
   showMoviesFromLocalstorage('watched');
   buttonLibraryWatched.classList.add('highlighted');
+
   buttonLibraryQueue.classList.remove('highlighted');
+  setRoute('library', { mode: 'watched' }); // переходим на  список watched
 });
 
 // Клик на кнопку  QUEUE в хедере
@@ -39,6 +41,7 @@ buttonLibraryQueue.addEventListener('click', () => {
   showMoviesFromLocalstorage('queue');
   buttonLibraryQueue.classList.add('highlighted');
   buttonLibraryWatched.classList.remove('highlighted');
+  setRoute('library', { mode: 'queue' }); // переходим на  список queue
 });
 
 // Объект с обработчиками роутов (навигация)
@@ -48,6 +51,63 @@ const routes = {
   '/library': library,
   '/js-group-project/library': library, // ИСПРАВИТЬ НА ПУТЬ ПРОЕКТА НА GITHUB
 };
+
+// Получаем текущий роут из URL
+const route = window.location.pathname;
+console.log('ROUTE', route);
+console.log('window.location', window.location);
+
+// Проверяем, что у нас есть обработчик для этого роута
+if (routes[route]) {
+  // Вызываем обработчик роута
+  routes[route]();
+} else {
+  console.log('Route not found');
+}
+
+// обработчик кликов на бэкдропе, закрытие его, реакция на кнопки ...
+backdrop.addEventListener('click', ({ target }) => {
+  // закрытие бэкдропа
+  if (target === backdrop) {
+    backdrop.classList.add('is-hidden');
+  }
+
+  // ловим нажатие на кнопку js-watched
+  if (target.tagName === 'BUTTON' && target.classList.contains('js-watched')) {
+    const idMovie = target.dataset.id;
+    console.log('PRESSED js-watched', idMovie);
+
+    // проверка, есть ли ужу в watched такой фильм если есть то deleteMovieFromLocalStorage
+    if (loadArayFromLocalStorage('watched').includes(String(idMovie))) {
+      console.log('УДАЛИТЬ ', idMovie);
+      deleteMovieFromLocalStorage(idMovie, 'watched');
+    } else {
+      // если же нет, то добавляем в список watched
+      addMovieToWatchedList(target.dataset.id);
+    }
+    renderBackdropButtonsState(target);
+    showMoviesFromLocalstorage('watched'); // обновляем содержимое списка на странице
+  }
+
+  // ловим нажатие на кнопку js-queue
+  if (target.tagName === 'BUTTON' && target.classList.contains('js-queue')) {
+    const idMovie = target.dataset.id;
+    console.log('PRESSED js-queue');
+
+    // проверка, есть ли ужу в queue такой фильм если есть то deleteMovieFromLocalStorage
+    if (loadArayFromLocalStorage('queue').includes(String(idMovie))) {
+      console.log('УДАЛИТЬ ', idMovie);
+      deleteMovieFromLocalStorage(idMovie, 'queue');
+    } else {
+      // если же нет, то добавляем в список queue
+      addMovieToQueueList(target.dataset.id);
+    }
+    renderBackdropButtonsState(target);
+    showMoviesFromLocalstorage('queue'); // обновляем содержимое списка на странице
+  }
+  // в консоль выводим место куда нажали
+  console.dir(target);
+});
 
 searchForm.addEventListener('submit', checkForm); // проверка формы при поиске фильма
 pagination.addEventListener('click', gotoPage); // переход на страницу в пагинаторе
@@ -79,6 +139,7 @@ async function showMoviesFromLocalstorage(keyOfStorage) {
   }
 }
 
+// выводит на страницу список фильмов из локалсторедж, тебует параметр data массив с списком объектов - фильмов
 // TODO Неплохо бы заменить эту функцию renderMovies предварительно приготовив нормально данные с локалстореджа, которые она сможет съесть
 function renderMoviesFromLocalstorageArray(data) {
   const movies = data
@@ -133,11 +194,15 @@ function home() {
 
 // Функция, которая будет вызываться для обработки роута '/library'
 function library() {
-  displayElement(searchForm, false);
-  displayElement(libraryButtonsBlock, true);
-  showMoviesFromLocalstorage('queue');
-  setRoute('library', { mode: 'queue' });
-  highlighteHeaderButtons();
+  displayElement(searchForm, false); // убираю форму поиска
+  displayElement(libraryButtonsBlock, true); // показываю кнопки watched и queue
+
+  const mode = getRoute('mode') || 'queue'; // если маршрут пустой то по умолчанию переходим на страницу 'queue'
+  console.log('🚀 ~ file: index.js:200 ~ library ~ mode', mode);
+
+  showMoviesFromLocalstorage(mode); // показываю фильмы из сохраненных в локалсторедже
+  setRoute('library', { mode: mode }); // по умочанию переходим на  список queue
+  highlighteHeaderButtons(); // крашу кнопки
 }
 
 // подсветка кнопок (Watched queue) на странице my -library
@@ -166,68 +231,37 @@ function setRoute(route, params) {
   window.history.pushState({}, '', url);
 }
 
-// Получаем текущий роут из URL
-const route = window.location.pathname;
-console.log('ROUTE', route);
-console.log('window.location', window.location);
-
-// Проверяем, что у нас есть обработчик для этого роута
-if (routes[route]) {
-  // Вызываем обработчик роута
-  routes[route]();
-} else {
-  console.log('Route not found');
-}
-
-// обработчик кликов на бэкдропе, закрытие его, реакция на кнопки ...
-backdrop.addEventListener('click', ({ target }) => {
-  // закрытие бэкдропа
-  if (target === backdrop) {
-    backdrop.classList.add('is-hidden');
-  }
-
-  // ловим нажатие на кнопку js-watched
-  if (target.tagName === 'BUTTON' && target.classList.contains('js-watched')) {
-    console.log('PRESSED js-watched');
-    addMovieToWatchedList(target.dataset.id);
-    renderBackdropButtonsState(target);
-  }
-
-  // ловим нажатие на кнопку js-queue
-  if (target.tagName === 'BUTTON' && target.classList.contains('js-queue')) {
-    console.log('PRESSED js-queue');
-    addMovieToQueueList(target.dataset.id);
-    renderBackdropButtonsState(target);
-  }
-  // в консоль выводим место куда нажали
-  console.dir(target);
-});
-
-// TODO переписать на render и брать статус кнопок в свойствах объекта
+// обновляет визуальное и текстовое состояния кнопок на бэкдропе TODO переписать на render и брать статус кнопок в свойствах объекта
 function renderBackdropButtonsState() {
   const buttonJsWatched = backdrop.querySelector('button.js-watched');
 
   const buttonJsQueue = backdrop.querySelector('button.js-queue');
 
+  // вынести этот код в отдельную функцию
   if (
     loadArayFromLocalStorage('watched').includes(
       String(buttonJsWatched.dataset.id)
     )
   ) {
+    buttonJsWatched.textContent = 'remove from watched';
     buttonJsWatched.classList.add('highlighted');
   } else {
     buttonJsWatched.classList.remove('highlighted');
+    buttonJsWatched.textContent = 'add to watched';
   }
 
   if (
     loadArayFromLocalStorage('queue').includes(String(buttonJsQueue.dataset.id))
   ) {
+    buttonJsQueue.textContent = 'remove from queue';
     buttonJsQueue.classList.add('highlighted');
   } else {
     buttonJsQueue.classList.remove('highlighted');
+    buttonJsQueue.textContent = 'add to queue';
   }
 }
 
+//  проверка данных  в форме и если все гуд то отправка
 function checkForm(event) {
   event.preventDefault();
   let inputValue = searchForm.elements.search.value;
@@ -268,6 +302,7 @@ function getUrlFromSearchParam() {
   return query;
 }
 
+// меняет url в строке браузера
 function setPageToUrl(page) {
   const currentUrl = new URL(window.location.href);
   currentUrl.searchParams.set('page', page);
@@ -467,6 +502,16 @@ function saveToLocalStorage(key, value) {
     console.error('Set state error: ', error.message);
   }
 }
+
+// удаляет фильм  из списка в локалсторедж по ключу 'key' -watched или queue и значению id фильма
+function deleteMovieFromLocalStorage(movieId, key) {
+  try {
+    const Movies = JSON.parse(localStorage.getItem(key));
+    const updatedMovies = Movies.filter(id => id !== movieId);
+    localStorage.setItem(key, JSON.stringify(updatedMovies));
+  } catch (error) {}
+}
+
 // достает переменную из локалсторедж по ключу
 function loadFromLocalStorage(key) {
   try {
