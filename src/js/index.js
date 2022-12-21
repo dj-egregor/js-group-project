@@ -88,9 +88,8 @@ backdrop.addEventListener('click', ({ target }) => {
     }
     renderBackdropButtonsState(target);
 
-    // showMoviesFromLocalstorage('watched'); // обновляем содержимое списка на странице
+    //проверяем, есть ли запрос mode
     if (getRoute('mode')) {
-      //проверяем, есть ли запрос mode
       showMoviesFromLocalstorage(getRoute('mode')); // обновляем содержимое списка на странице
     }
   }
@@ -109,8 +108,9 @@ backdrop.addEventListener('click', ({ target }) => {
       addMovieToQueueList(target.dataset.id);
     }
     renderBackdropButtonsState(target);
+
+    //проверяем, есть ли запрос mode
     if (getRoute('mode')) {
-      //проверяем, есть ли запрос mode
       showMoviesFromLocalstorage(getRoute('mode')); // обновляем содержимое списка на странице
     }
   }
@@ -335,12 +335,18 @@ function highlightActiveLink() {
   }
 }
 
+// скролит страницу  вверх
+function scrollTop() {
+  window.scrollTo(0, 0);
+}
+
 // пагинация перейти на указанную  страницу
 function gotoPage({ target }) {
   if (target.tagName === 'BUTTON') {
     currentPage = Number(target.dataset.gotopage);
     setPageToUrl(currentPage);
     getFilmsByUrl(getUrlFromSearchParam());
+    scrollTop();
   }
 }
 
